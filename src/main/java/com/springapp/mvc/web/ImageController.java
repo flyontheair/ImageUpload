@@ -29,8 +29,8 @@ public class ImageController {
     private ImageService imageService;
 
     @RequestMapping(method = RequestMethod.POST,produces = "application/json",consumes = "multipart/form-data")
-    @ResponseBody
-    public List<String> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
+    public @ResponseBody List<String> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
+        String baseUri=request.getSession().getServletContext().getRealPath("");
         List<String> list=new ArrayList<String>();
         ServletFileUpload upload = new ServletFileUpload();
         FileItemIterator fileIterator = upload.getItemIterator(request);
@@ -40,5 +40,14 @@ public class ImageController {
             list.add(path);
         }
         return list;
+    }
+
+    @RequestMapping(value = "/test",method = RequestMethod.POST,produces = "application/json; charset=utf-8")
+    @ResponseBody
+    public List<String> Test(){
+        List<String> test=new ArrayList<String>();
+        test.add("Max is ok");
+        return test;
+
     }
 }
