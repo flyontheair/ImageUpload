@@ -121,7 +121,17 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public ImageSize getImageSize(String imageUri) throws IOException {
-        return null;
+        File srcFile=this.loadDefaultImageFile(new File(this.root,imageUri));
+        if(srcFile==null){
+            return null;
+        }
+        FileInputStream input=new FileInputStream(srcFile);
+        BufferedImage srcImage=ImageIO.read(input);
+        IOUtils.closeQuietly(input);
+
+        int srcWidth=srcImage.getWidth();
+        int srcHeight=srcImage.getHeight();
+        return new ImageSize(srcWidth,srcHeight);
     }
 
     @Override
@@ -206,7 +216,7 @@ public class ImageServiceImpl implements ImageService {
      * 强制压缩/放大图片到固定的大小
      * @param targetWidth int 新宽度
      * @param targetHeight, int 新高度
-     * @param srcImage 源图片
+     * @param srcFile 源图片
      * @throws IOException
      */
     private void resize(File srcFile, File targetFile, int targetWidth, int targetHeight) throws IOException {
