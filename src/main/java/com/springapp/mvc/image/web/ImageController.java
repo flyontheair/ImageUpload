@@ -1,10 +1,13 @@
-package com.springapp.mvc.web;
+package com.springapp.mvc.image.web;
 
-import com.springapp.mvc.services.ImageService;
+import com.springapp.mvc.image.services.ImageService;
+import com.springapp.mvc.result.Result;
+import com.springapp.mvc.result.ResultSupport;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,26 +31,29 @@ public class ImageController {
     //@Qualifier("imageServiceImpl")
     private ImageService imageService;
 
-    @RequestMapping(method = RequestMethod.POST,produces = "application/json",consumes = "multipart/form-data")
-    public @ResponseBody List<String> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
-        String baseUri=request.getSession().getServletContext().getRealPath("");
-        List<String> list=new ArrayList<String>();
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "multipart/form-data")
+    public
+    @ResponseBody
+    Result<List<String>> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
+        List<String> list = new ArrayList<String>();
         ServletFileUpload upload = new ServletFileUpload();
         FileItemIterator fileIterator = upload.getItemIterator(request);
-        while(fileIterator.hasNext()){
-            FileItemStream item=fileIterator.next();
+        while (fileIterator.hasNext()) {
+            FileItemStream item = fileIterator.next();
             String path = this.imageService.save(item.getName(), item.openStream());
             list.add(path);
         }
-        return list;
+        return ResultSupport.ok(list);
     }
 
-    @RequestMapping(value = "/test",method = RequestMethod.POST,produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "/test",method = RequestMethod.GET, produces = "application/json")
+    public
     @ResponseBody
-    public List<String> Test(){
-        List<String> test=new ArrayList<String>();
-        test.add("Max is ok");
-        return test;
-
+    Result<List<String>> test() {
+        List<String> list = new ArrayList<String>();
+        list.add("Max is ok");
+        list.add("Max is ok2");
+        list.add("Max is ok3");
+        return ResultSupport.ok(list);
     }
 }
