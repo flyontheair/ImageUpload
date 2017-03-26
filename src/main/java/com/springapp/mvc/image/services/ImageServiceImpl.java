@@ -116,7 +116,33 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public String saveToVague(String name, InputStream inputStream) throws IOException {
-        return null;
+        String suffix=getSuffix(name);//文件名
+        String uri="";
+        //命名
+        SimpleDateFormat dateFormat=new SimpleDateFormat("yyyyMMdd");
+        Date date=new Date();
+        String format=dateFormat.format(date);
+        uri="01/"+format+"/"+date.getTime()+"/";
+        //文件读取
+        File srcFile=new File(this.root,uri+ORIGIN+suffix);//目标文件
+        File dir=srcFile.getParentFile();
+        dir.mkdirs();//新建目录
+
+        OutputStream output=null;
+        try{
+            InputStream a=new FileInputStream(srcFile);
+            output=new FileOutputStream(srcFile);
+            IOUtils.copy(inputStream,output);
+        }catch (Exception ex){
+
+        }finally {
+            IOUtils.closeQuietly(output);
+            IOUtils.closeQuietly(inputStream);
+        }
+        File targetFile = new File(this.root, uri + DEFAULT_IMAGE_SIZE + suffix);
+        compressImageToVague(srcFile, targetFile);
+
+        return uri + ORIGIN + suffix;//改为完整路径
     }
 
     @Override
