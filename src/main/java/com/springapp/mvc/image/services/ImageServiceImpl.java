@@ -130,7 +130,6 @@ public class ImageServiceImpl implements ImageService {
 
         OutputStream output=null;
         try{
-            InputStream a=new FileInputStream(srcFile);
             output=new FileOutputStream(srcFile);
             IOUtils.copy(inputStream,output);
         }catch (Exception ex){

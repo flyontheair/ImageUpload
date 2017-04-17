@@ -1,5 +1,7 @@
 package com.springapp.mvc.image;
 
+import com.springapp.mvc.core.ConfigLoader;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +18,9 @@ public class ImageConfig {
      */
     private float imageQuality = 0.6f;
 
-//    public static synchronized ImageConfig load() throws IOException {
-//        return ConfigLoader.loadYamlAs("image.yaml", ImageConfig.class);
-//    }
+    public static synchronized ImageConfig load() throws IOException {
+        return ConfigLoader.loadYamlAs("image.yaml", ImageConfig.class);
+    }
 
     public ImageConfig(){
         imageSizes=new ArrayList<String>();
