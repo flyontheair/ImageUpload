@@ -1,6 +1,5 @@
 package com.springapp.mvc.image.web;
 
-import com.springapp.mvc.image.services.ImageService;
 import com.springapp.mvc.result.Result;
 import com.springapp.mvc.result.ResultSupport;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -27,7 +26,7 @@ import java.util.List;
 @RequestMapping("/image")
 public class ImageController {
 
-    @Autowired
+    /*@Autowired
     //@Qualifier("imageServiceImpl")
     private ImageService imageService;
 
@@ -55,5 +54,5 @@ public class ImageController {
         list.add("Max is ok2");
         list.add("Max is ok3");
         return ResultSupport.ok(list);
-    }
+    }*/
 }

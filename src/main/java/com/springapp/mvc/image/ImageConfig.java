@@ -22,14 +22,14 @@ public class ImageConfig {
         return ConfigLoader.loadYamlAs("image.yaml", ImageConfig.class);
     }
 
-    public ImageConfig(){
+    /*public ImageConfig(){
         imageSizes=new ArrayList<String>();
         imageSizes.add("160x160");
         imageSizes.add("120x120");
         imageSizes.add("375x180");
         imageSizes.add("80x80");
         imageSizes.add("60x60");
-    }
+    }*/
 
     public List<String> getImageSizes() {
         return imageSizes;
