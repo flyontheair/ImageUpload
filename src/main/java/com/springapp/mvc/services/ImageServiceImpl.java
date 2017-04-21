@@ -86,7 +86,8 @@ public class ImageServiceImpl implements ImageService {
         }
 
         //没有指定的格式
-        String fileName=file.getName().toLowerCase();//0x0格式
+        //String fileName=file.getName().toLowerCase();//0x0格式
+        String fileName=file.getName().toLowerCase().split("\\.")[0];//0x0格式
         final String size=IMAGE_SIZE_PATTERN.matcher(fileName).find()?fileName:DEFAULT_IMAGE_SIZE;
         final File dir=file.isDirectory()?file:file.getParentFile();
 
@@ -252,6 +253,7 @@ public class ImageServiceImpl implements ImageService {
         writeImage(srcImage, targetFile, targetWidth, targetHeight);
     }
 
+    //按尺寸绘图
     private void writeImage(BufferedImage srcImage, File targetFile, int targetWidth, int targetHeight)
             throws IOException {
         //构建图片对象

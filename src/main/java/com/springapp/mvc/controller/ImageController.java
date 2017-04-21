@@ -9,9 +9,11 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,21 +25,15 @@ import java.util.List;
  * Created by pcdalao on 2017/4/19.
  */
 @Controller
-@RequestMapping("/upload")
-public class TestController {
+@RequestMapping("/image")
+public class ImageController {
     private ImageService imageService;
 
-    public TestController() throws IOException {
+    public ImageController() throws IOException {
         imageService=new ImageServiceImpl();
     }
 
-    @RequestMapping(value="/test",method = RequestMethod.GET,produces = "application/json")
-    public @ResponseBody
-    String test() {
-        return "hello";
-    }
-
-    @RequestMapping(value = "/image",method = RequestMethod.POST, produces = "application/json", consumes = "multipart/form-data")
+    @RequestMapping(value = "/",method = RequestMethod.POST, produces = "application/json", consumes = "multipart/form-data")
     public
     @ResponseBody
     Result<List<String>> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
@@ -53,20 +49,43 @@ public class TestController {
     }
 
     /**
-     * 字节流返回退选哪个数据
+     * 字节流返回图片（自动生成尺寸图片）
      * @param path
      * @param request
      * @param response
      */
-    @RequestMapping(value="/path",method = RequestMethod.GET)
-    public void getFile(String path, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping(value="/path/**",method = RequestMethod.GET)
+    public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String restOfTheUrl = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String path=restOfTheUrl.substring(restOfTheUrl.indexOf("/image/path")+11);
         FileInputStream input = this.imageService.read(path);
         response.setContentType("image/png");
-        byte[] data = new byte[input.available()];
+        OutputStream stream = response.getOutputStream();
+
+        int read;
+        byte b[]=new byte[1024];
+        read=input.read(b);
+        while(read!=-1)
+        {
+            stream.write(b,0,read);
+            read=input.read(b);
+            //read=fis.read();
+        }
+        stream.flush();
+        stream.close();
+
+        /*File file=new File("D:\\a-Max\\git-own\\ImageUpload\\target\\ImageUpload\\WEB-INF\\classes\\image\\max\\20170421\\8658c9c7-357e-49c6-9b80-c073a95a9e77\\320x180.jpg");
+        FileInputStream inputStream = new FileInputStream(file);
+        byte[] data = new byte[(int)file.length()];
+        int length = inputStream.read(data);
+        inputStream.close();
+
+        response.setContentType("image/png");
+
         OutputStream stream = response.getOutputStream();
         stream.write(data);
         stream.flush();
-        stream.close();
+        stream.close();*/
     }
 
 }
