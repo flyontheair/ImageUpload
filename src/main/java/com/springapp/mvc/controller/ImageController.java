@@ -1,9 +1,12 @@
 package com.springapp.mvc.controller;
 
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.springapp.mvc.result.Result;
 import com.springapp.mvc.result.ResultSupport;
 import com.springapp.mvc.services.ImageService;
 import com.springapp.mvc.services.ImageServiceImpl;
+import com.springapp.mvc.services.Mongo.MongoDaoImpl;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
@@ -86,6 +89,21 @@ public class ImageController {
         stream.write(data);
         stream.flush();
         stream.close();*/
+    }
+
+    @RequestMapping(value="/test")
+    public @ResponseBody String Test(){
+        MongoDaoImpl mongoDao=MongoDaoImpl.getMongoDaoImplInstance();
+        DBCollection collection= mongoDao.getCollection("Demo", "user");
+//        String[] keys={};
+//        Object[] values={};
+//        List<DBObject> list=mongoDao.find("Demo","user",keys,values,-1);
+
+        String[] keys={"name","public","price"};
+        Object[] values={"Core Java","Max",12.00};
+        boolean a=mongoDao.inSert("Demo","Book",keys,values);
+
+        return "Max is ok";
     }
 
 }

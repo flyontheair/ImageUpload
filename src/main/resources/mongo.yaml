@@ -1,0 +1,14 @@
+host: 127.0.0.1
+port: 27017
+connectionsPerHost: 50
+threadsAllowedToBlockForConnectionMultiplier: 50
+#单位为秒(n*1000)
+connectTimeout: 60
+maxWaitTime: 120
+autoConnectRetry: true
+socketKeepAlive: true
+socketTimeout: 2
+slaveOk: true
+writeNumber: 1
+riteTimeout: 0
+writeFsync: true
