@@ -5,6 +5,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Max on 2017/5/13.
@@ -45,5 +47,15 @@ public interface MongoDao {
     public boolean update(String dbName,String collectionName,DBObject oldValue,DBObject newValue);
 
     public boolean isExist(String dbName,String collectionName,String key,Object value);
+
+    /**
+     * 包含条件查找 contain
+     * @param dbName
+     * @param collectionName
+     * @param keys
+     * @param values
+     * @return
+     */
+    public ArrayList<DBObject> findByInQuery(String dbName, String collectionName, String[] keys, List<Object[]> values, int num);
 
 }
