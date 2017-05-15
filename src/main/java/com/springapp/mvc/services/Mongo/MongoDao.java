@@ -19,7 +19,15 @@ public interface MongoDao {
 
     public DBCollection getCollection(String dbName,String collectionName);
 
-    public boolean inSert(String dbName,String collectionName,String[] keys,Object[] values);
+    /**
+     * 插入数据，返回id
+     * @param dbName
+     * @param collectionName
+     * @param keys
+     * @param values
+     * @return
+     */
+    public String inSert(String dbName,String collectionName,String[] keys,Object[] values);
 
     public boolean delete(String dbName,String collectionName,String[] keys,Object[] value);
 

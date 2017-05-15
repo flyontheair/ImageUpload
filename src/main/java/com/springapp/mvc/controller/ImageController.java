@@ -7,10 +7,14 @@ import com.springapp.mvc.result.ResultSupport;
 import com.springapp.mvc.services.ImageService;
 import com.springapp.mvc.services.ImageServiceImpl;
 import com.springapp.mvc.services.Mongo.MongoDaoImpl;
+import com.springapp.mvc.services.SaveImage;
+import com.springapp.mvc.services.SaveImageImpl;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.text.StrBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by pcdalao on 2017/4/19.
@@ -31,29 +37,38 @@ import java.util.List;
 @RequestMapping("/image")
 public class ImageController {
     private ImageService imageService;
+    private SaveImage saveImage;
 
     public ImageController() throws IOException {
         imageService=new ImageServiceImpl();
+        saveImage=new SaveImageImpl();
     }
 
     @RequestMapping(value = "/",method = RequestMethod.POST, produces = "application/json", consumes = "multipart/form-data")
     public
     @ResponseBody
-    Result<List<String>> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
-        List<String> list = new ArrayList<String>();
+    Result<List<Map<String,String>>> uploadImage(HttpServletRequest request) throws IOException, FileUploadException {
+        List<Map<String,String>> list = new ArrayList<Map<String, String>>();
         ServletFileUpload upload = new ServletFileUpload();
         FileItemIterator fileIterator = upload.getItemIterator(request);
+        String userId="Max";
         while (fileIterator.hasNext()) {
             FileItemStream item = fileIterator.next();
-            String path = this.imageService.save(item.getName(), item.openStream(),"max");
-            list.add(path);
+            Map<String,String> path = this.imageService.save(item.getName(), item.openStream(),userId);
+            Map<String,String> img=new HashMap<String, String>();
+            String id= saveImage.Save(path);
+            if(id!=""){
+                img.put("imgId",id);
+                img.put("name",item.getName());
+            }
+            img.put("url",path.get("prefix")+path.get("path"));
+            list.add(img);
         }
         return ResultSupport.ok(list);
     }
 
     /**
      * 字节流返回图片（自动生成尺寸图片）
-     * @param path
      * @param request
      * @param response
      */
@@ -76,33 +91,10 @@ public class ImageController {
         }
         stream.flush();
         stream.close();
-
-        /*File file=new File("D:\\a-Max\\git-own\\ImageUpload\\target\\ImageUpload\\WEB-INF\\classes\\image\\max\\20170421\\8658c9c7-357e-49c6-9b80-c073a95a9e77\\320x180.jpg");
-        FileInputStream inputStream = new FileInputStream(file);
-        byte[] data = new byte[(int)file.length()];
-        int length = inputStream.read(data);
-        inputStream.close();
-
-        response.setContentType("image/png");
-
-        OutputStream stream = response.getOutputStream();
-        stream.write(data);
-        stream.flush();
-        stream.close();*/
     }
 
-    @RequestMapping(value="/test")
-    public @ResponseBody String Test(){
-        MongoDaoImpl mongoDao=MongoDaoImpl.getMongoDaoImplInstance();
-        DBCollection collection= mongoDao.getCollection("Demo", "user");
-//        String[] keys={};
-//        Object[] values={};
-//        List<DBObject> list=mongoDao.find("Demo","user",keys,values,-1);
-
-        String[] keys={"name","public","price"};
-        Object[] values={"Core Java","Max",12.00};
-        boolean a=mongoDao.inSert("Demo","Book",keys,values);
-
+    @RequestMapping(value="/max",method = RequestMethod.POST)
+    public @ResponseBody String Max(){
         return "Max is ok";
     }
 

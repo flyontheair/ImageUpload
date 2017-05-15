@@ -1,4 +1,5 @@
 package com.springapp.mvc.services;
+import com.springapp.mvc.core.DefaultConfig;
 import com.springapp.mvc.image.ImageConfig;
 import com.springapp.mvc.image.ImageSize;
 import org.apache.commons.io.IOUtils;
@@ -9,10 +10,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -25,12 +24,15 @@ public class ImageServiceImpl implements ImageService {
     public static final String DEFAULT_IMAGE_SIZE = "0x0";//原图尺寸的压缩结果文件名
     private final ImageCompressor imageCompressor;
     private final ImageConfig imageConfig;
+    private final DefaultConfig defaultConfig;
     private static final Pattern IMAGE_SIZE_PATTERN = Pattern.compile("\\dx\\d");//图片宽高格式，也是名字
 
     private final List<ImageSize> imageSizes = new ArrayList<ImageSize>();
 
     public ImageServiceImpl() throws IOException {
-        String root=getClass().getResource("/").getFile().toString();//当前项目地址，实际应该配置的
+        defaultConfig=DefaultConfig.load();
+        //String root=getClass().getResource("/").getFile().toString();//当前项目地址，实际应该配置的
+        String root=defaultConfig.getImageRoot();
         this.root = new File(root, "image");//图片的存储路径
 
         this.imageConfig=ImageConfig.load();
@@ -41,7 +43,12 @@ public class ImageServiceImpl implements ImageService {
     }
 
     /**
-     *保存图片流到本地
+     *保存图片流到本地,
+     * {
+     *     path:文件相对路径
+     *     prefix:前缀路径
+     *     root:物理路径
+     * }
      * @param name
      * @param inputStream
      * @param userId
@@ -49,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
      * @throws IOException
      */
     @Override
-    public String save(String name, InputStream inputStream, String userId) throws IOException {
+    public Map<String, String> save(String name, InputStream inputStream, String userId) throws IOException {
         String suffix=getSuffix(name);
         String uri=buildUri(userId);
         File srcFile=new File(this.root,uri+ORIGIN+suffix);
@@ -71,7 +78,13 @@ public class ImageServiceImpl implements ImageService {
         File targetFile=new File(this.root,uri+DEFAULT_IMAGE_SIZE+suffix);
         compressImage(srcFile, targetFile);//压缩文件
 
-        return this.root.getPath()+uri + ORIGIN + suffix;//返回图片路径
+        Map<String,String> rel=new HashMap<String, String>();
+        rel.put("path",uri + ORIGIN + suffix);
+        rel.put("prefix",this.defaultConfig.getImagePrefix());
+        rel.put("root",this.root.getPath());
+        rel.put("name",name);
+        return rel;
+        //return this.root.getPath()+uri + ORIGIN + suffix;//返回图片路径
     }
 
     @Override
@@ -182,7 +195,8 @@ public class ImageServiceImpl implements ImageService {
 
         if(userId==null||userId=="") userId="01";
         SimpleDateFormat format=new SimpleDateFormat("/yyyyMMdd/");
-        return "/"+userId+format.format(date)+ UUID.randomUUID().toString()+"/";
+        //return "/"+userId+format.format(date)+ UUID.randomUUID().toString()+"/";
+        return "/"+userId+format.format(date)+ date.getTime()+"/";
     }
 
     /**

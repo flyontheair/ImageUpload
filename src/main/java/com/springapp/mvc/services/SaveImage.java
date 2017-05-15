@@ -1,8 +1,15 @@
 package com.springapp.mvc.services;
 
+import java.util.Map;
+
 /**
  * Created by Max on 2017/5/14.
  */
 public interface SaveImage {
-    public String Save(String path,Object doc);
+    /**
+     *字典存入mongo
+     * @param map
+     * @return
+     */
+    public String Save(Map<String,String> map);
 }

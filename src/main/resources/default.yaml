@@ -1,0 +1,5 @@
+#环境配置
+#图片路径前缀
+imagePrefix: "http://192.168.182.1:8080/img"
+#图片物理根路径
+imageRoot: "D:/apache/apache-tomcat-7.0.72/file"

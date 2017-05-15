@@ -65,14 +65,14 @@ public class MongoDaoImpl implements MongoDao{
     }
 
     @Override
-    public boolean inSert(String dbName, String collectionName, String[] keys, Object[] values) {
+    public String inSert(String dbName, String collectionName, String[] keys, Object[] values) {
         DB db = null;
         DBCollection dbCollection = null;
         WriteResult result = null;
         String resultString = null;
         if(keys!=null && values!=null){
             if(keys.length != values.length){
-                return false;
+                return "";
             }else{
                 db = mongoClient.getDB(dbName); //获取数据库实例
                 dbCollection = db.getCollection(collectionName);    //获取数据库中指定的collection集合
@@ -92,10 +92,10 @@ public class MongoDaoImpl implements MongoDao{
                         db.requestDone();   //请求结束后关闭db
                     }
                 }
-                return (resultString != null) ? false : true;
+                return (resultString != null) ? "" : insertObj.get("_id").toString();
             }
         }
-        return false;
+        return "";
     }
 
     @Override
