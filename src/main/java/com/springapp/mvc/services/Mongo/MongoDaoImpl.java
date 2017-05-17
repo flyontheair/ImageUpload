@@ -115,7 +115,7 @@ public class MongoDaoImpl implements MongoDao {
                 BasicDBObject queryObj = new BasicDBObject();   //构建查询条件
 
                 for (int i = 0; i < keys.length; i++) {   //填充查询条件
-                    if (keys[i] == "_id") {//根据id查找
+                    if (keys[i].equals("_id")) {//根据id查找
                         queryObj.put(keys[i], new ObjectId(values[i].toString()));
                     }else
                         queryObj.put(keys[i], values[i]);
@@ -149,9 +149,16 @@ public class MongoDaoImpl implements MongoDao {
                 BasicDBObject queryObj = new BasicDBObject();   //构建查询条件
                 for (int i = 0; i < keys.length; i++) {   //填充查询条件
                     BasicDBList cond = new BasicDBList();
-                    for (int j = 0; j < values.get(i).length; j++) {
-                        cond.add(values.get(i)[j]);
+                    if(keys[i].equals("_id")){
+                        for (int j = 0; j < values.get(i).length; j++) {
+                            cond.add(new ObjectId(values.get(i)[j].toString()));
+                        }
+                    }else{
+                        for (int j = 0; j < values.get(i).length; j++) {
+                            cond.add(values.get(i)[j]);
+                        }
                     }
+
                     queryObj.put(keys[i], new BasicDBObject("$in", cond));
                 }
 
