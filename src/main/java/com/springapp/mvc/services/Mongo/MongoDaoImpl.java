@@ -4,6 +4,7 @@ import com.mongodb.*;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class MongoDaoImpl implements MongoDao {
             LoadConfig();//读取配置
             MongoClientOptions.Builder build = new MongoClientOptions.Builder();
             build.connectionsPerHost(mongoConfig.getConnectionsPerHost());//最大连接数50
-            build.autoConnectRetry(mongoConfig.isAutoConnectRetry());//自动重连
+            //build.autoConnectRetry(mongoConfig.isAutoConnectRetry());//自动重连
             build.threadsAllowedToBlockForConnectionMultiplier(mongoConfig.getThreadsAllowedToBlockForConnectionMultiplier());//如果当前所有的connection都在使用中，则每个connection上可以有50个线程排队等待
                /*
              * 一个线程访问数据库的时候，在成功获取到一个可用数据库连接之前的最长等待时间为2分钟
@@ -82,16 +83,18 @@ public class MongoDaoImpl implements MongoDao {
                 for (int i = 0; i < keys.length; i++) {   //构建添加条件
                     insertObj.put(keys[i], values[i]);
                 }
-
+                insertObj.put("createTime",new Date());
+                insertObj.put("updateTime",new Date());
                 try {
                     result = dbCollection.insert(insertObj);
-                    resultString = result.getError();
+                    System.out.println(result);
+                    //resultString = result.getUpsertedId()
                 } catch (Exception e) {
                     // TODO: handle exception
                     e.printStackTrace();
                 } finally {
                     if (null != db) {
-                        db.requestDone();   //请求结束后关闭db
+                        //db.requestDone();   //请求结束后关闭db
                     }
                 }
                 return (resultString != null) ? "" : insertObj.get("_id").toString();
@@ -130,7 +133,98 @@ public class MongoDaoImpl implements MongoDao {
 
     @Override
     public boolean update(String dbName, String collectionName, DBObject oldValue, DBObject newValue) {
+        DB db = null;
+        DBCollection dbCollection = null;
+        WriteResult result = null;
+        String resultString = null;
+
+        if(oldValue.equals(newValue)){
+            return true;
+        }else{
+            try {
+                db = mongoClient.getDB(dbName); //获取数据库实例
+                dbCollection = db.getCollection(collectionName);    //获取数据库中指定的collection集合
+                newValue.put("updateTime",new Date());
+
+                BasicDBObject update =new BasicDBObject();
+                update.append("$set",newValue);
+                result = dbCollection.updateMulti(oldValue,update);
+                System.out.println("update"+result);
+
+                resultString = "";//result.getError();
+
+                return resultString == null;
+            } catch (Exception e) {
+                // TODO: handle exception
+                e.printStackTrace();
+            } finally{
+                if(null != db){
+                    //db.requestDone();   //关闭db
+                    db = null;
+                }
+            }
+
+        }
+
         return false;
+    }
+
+    @Override
+    public boolean updateOne(String dbName, String collectionName, DBObject oldValue, DBObject newValue) {
+//        DB db = null;
+//        DBCollection dbCollection = null;
+//        WriteResult result = null;
+//        String resultString = null;
+//
+//        if(oldValue.equals(newValue)){
+//            return true;
+//        }else{
+//            try {
+//                db = mongoClient.getDB(dbName); //获取数据库实例
+//                dbCollection = db.getCollection(collectionName);    //获取数据库中指定的collection集合
+//                //dbCollection.findAndModify()
+//                result = dbCollection.update(oldValue, newValue);
+//                resultString = result.getError();
+//
+//                return resultString == null;
+//            } catch (Exception e) {
+//                // TODO: handle exception
+//                e.printStackTrace();
+//            } finally{
+//                if(null != db){
+//                    db.requestDone();   //关闭db
+//                    db = null;
+//                }
+//            }
+//
+//        }
+
+        return false;
+    }
+
+    public static void main(String[] args) {
+//        MongoDaoImpl mongoDao=MongoDaoImpl.getMongoDaoImplInstance();
+//        BasicDBObject query = new BasicDBObject();
+//        query.put("fileName", "max9");
+//        BasicDBObject stuFound = new BasicDBObject();
+//        stuFound.append("fileName", "max10-new");
+//        stuFound.append("progress", "100%");
+//        BasicDBObject n=new BasicDBObject();
+//        n.append("$set",stuFound);
+//
+//        mongoDao.update("Demo","TaskCompress",query,n);
+
+        MongoDaoImpl mongoDao=MongoDaoImpl.getMongoDaoImplInstance();
+        String[] keys={"name"};
+        Object[] values={"max"};
+        mongoDao.inSert("Demo","test",keys,values);
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("name", "max");
+        BasicDBObject stuFound = new BasicDBObject();
+        stuFound.append("desc", "?????");
+        stuFound.append("progress", "100%");
+        mongoDao.update("Demo","test",query,stuFound);
     }
 
     @Override
@@ -170,7 +264,7 @@ public class MongoDaoImpl implements MongoDao {
     }
 
     //查找方法
-    public ArrayList<DBObject> find(String dbName, String collectionName, BasicDBObject queryObj, int num) {
+    private ArrayList<DBObject> find(String dbName, String collectionName, BasicDBObject queryObj, int num) {
         ArrayList<DBObject> resultList = new ArrayList<DBObject>(); //创建返回的结果集
         DB db = null;
         DBCollection dbCollection = null;
@@ -201,7 +295,7 @@ public class MongoDaoImpl implements MongoDao {
                     cursor.close();
                 }
                 if (null != db) {
-                    db.requestDone();   //关闭数据库请求
+                    //db.requestDone();   //关闭数据库请求
                 }
             }
 

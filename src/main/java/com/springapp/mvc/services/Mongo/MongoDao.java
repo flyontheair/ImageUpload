@@ -46,6 +46,16 @@ public interface MongoDao {
 
     public boolean update(String dbName,String collectionName,DBObject oldValue,DBObject newValue);
 
+    /**
+     * 只更新第一条信息
+     * @param dbName
+     * @param collectionName
+     * @param oldValue,查询字段
+     * @param newValue，需要更新的字段，老字段不变
+     * @return
+     */
+    public boolean updateOne(String dbName,String collectionName,DBObject oldValue,DBObject newValue);
+
     public boolean isExist(String dbName,String collectionName,String key,Object value);
 
     /**
